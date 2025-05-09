@@ -1,0 +1,29 @@
+# Python-specific ignores
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+
+# Environment variables
+.env
+
+# Build files
+*.zip
+*.tar.gz
+*.egg-info/
+dist/
+build/
+
+# IDE-specific ignores
+.vscode/
+.idea/
+
+# OS-specific ignores
+.DS_Store
+Thumbs.db
+
+# Other unnecessary files
+*.bak
+*.tmp
+*.swp

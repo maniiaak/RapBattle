@@ -1,8 +1,8 @@
 import sys
 import sqlite3
-import csv
 import requests
 import os
+import random
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit,
     QPushButton, QLabel, QMessageBox, QStackedWidget, QDialog
@@ -11,6 +11,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 from dotenv import load_dotenv, set_key
 from pathlib import Path
+from PyQt5.QtGui import QIcon
 
 # Load the .env file if it exists
 env_path = Path(".env")
@@ -19,6 +20,8 @@ load_dotenv(dotenv_path=env_path)
 # Initialize the Genius API token
 GENIUS_API_TOKEN = os.getenv("GENIUS_API_TOKEN")
 
+RAPBATTLE_LOGO = r"Assets\rapbattle_logo.jpg"
+named_artist = []
 
 class GeniusFeatureGame(QWidget):
     def __init__(self, parent):
@@ -31,14 +34,13 @@ class GeniusFeatureGame(QWidget):
         self.collaborations_cache = {}
         self.pixmap = None
         self.current_player = 1
-        self.starting_player = 1  # Player 1 starts by default
+        self.starting_player = random.randint(1, 2) # Randomly choose the starting player
         self.player1_name = "Player 1"
         self.player2_name = "Player 2"
         self.player1_score = 0  # Player 1's score
         self.player2_score = 0  # Player 2's score
         self.db_connection = sqlite3.connect("collaborations.db")  # SQLite database
         self.setup_database()
-        self.import_csv_to_db("c:\\Users\\samue\\Datascrape\\rapmap\\edges.csv")  # Import CSV data
         self.setup_ui()
 
     def setup_database(self):
@@ -50,19 +52,6 @@ class GeniusFeatureGame(QWidget):
                 collaborator_name TEXT
             )
         """)
-        self.db_connection.commit()
-
-    def import_csv_to_db(self, csv_file_path):
-        """Import data from a CSV file into the database."""
-        cursor = self.db_connection.cursor()
-        with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                source = row["Source"].strip().lower()
-                target = row["Target"].strip().lower()
-                # Insert both directions (source -> target and target -> source)
-                cursor.execute("INSERT OR IGNORE INTO collaborations (artist_id, collaborator_name) VALUES (?, ?)", (source, target))
-                cursor.execute("INSERT OR IGNORE INTO collaborations (artist_id, collaborator_name) VALUES (?, ?)", (target, source))
         self.db_connection.commit()
 
     def fetch_collaborations(self, artist_id):
@@ -203,6 +192,10 @@ class GeniusFeatureGame(QWidget):
 
     def process_input(self):
         artist_name = self.input.text().strip()
+
+        if len(named_artist) == 0:
+            named_artist.append(artist_name)
+
         if not artist_name:
             QMessageBox.warning(self, "Input Error", "Please enter an artist name.")
             return
@@ -213,13 +206,13 @@ class GeniusFeatureGame(QWidget):
             self.input.clear()
             return
 
-        # Update the artist's image
-        if artist_data["image_url"]:
-            self.update_artist_image(artist_data["image_url"])
-        else:
-            self.image_label.clear()  # Clear the image if no image URL is available
-
         if self.current_artist is None:
+            # Update the artist's image for the first input of the round
+            if artist_data["image_url"]:
+                self.update_artist_image(artist_data["image_url"])
+            else:
+                self.image_label.clear()  # Clear the image if no image URL is available
+
             self.current_artist = artist_name
             self.label.setText(f"{self.player2_name if self.current_player == 1 else self.player1_name}, name an artist that features with {self.current_artist}:")
         else:
@@ -236,23 +229,49 @@ class GeniusFeatureGame(QWidget):
             input_artist_collaborations = self.fetch_collaborations(input_artist_id)
 
             if artist_name.lower() in current_artist_collaborations or self.current_artist.lower() in input_artist_collaborations:
-                QMessageBox.information(self, "Correct", f"Correct! {artist_name} is a valid artist.")
-                self.current_artist = artist_name
-                next_player = self.player1_name if self.current_player == 2 else self.player2_name
-                self.label.setText(f"{next_player}, name an artist that features with {self.current_artist}:")
-                self.current_player = 1 if self.current_player == 2 else 2
+                print(named_artist)
+                if not artist_name.lower() in named_artist:
+                    # Show the "Correct" message and wait for the user to press "OK"
+                    QMessageBox.information(self, "Correct", f"Correct! {artist_name} is a valid artist.")
+                    named_artist.append(artist_name)
+
+                    # Update the artist's image after the user presses "OK"
+                    print(len(named_artist))
+
+                    self.update_artist_image(artist_data["image_url"])
+
+                    self.current_artist = artist_name
+                    next_player = self.player1_name if self.current_player == 2 else self.player2_name
+                    self.label.setText(f"{next_player}, name an artist that features with {self.current_artist}:")
+                    self.current_player = 1 if self.current_player == 2 else 2
+                else:
+                    QMessageBox.information(self, "Game Over", f"Incorrect! {artist_name} has already been named! Starting a new round!")
+                    self.game_over()
+
             else:
-                # Award 1 point to the player who caused the mistake
+                QMessageBox.information(self, "Game Over", f"Incorrect! {artist_name} does not feature with {self.current_artist}. Starting a new round!")
+                self.game_over()
+
+        self.input.clear()
+    
+    def game_over(self):
+        # Award 1 point to the player who caused the mistake
                 if self.current_player == 1:
                     self.player2_score += 1
                 else:
                     self.player1_score += 1
 
-                QMessageBox.information(self, "Game Over", f"Incorrect! {artist_name} does not feature with {self.current_artist}. Starting a new round!")
+                pixmap = QPixmap(RAPBATTLE_LOGO)
+                self.image_label.setPixmap(
+                    pixmap.scaled(
+                        self.image_label.width(),
+                        self.image_label.height(),
+                        Qt.KeepAspectRatio,
+                        Qt.SmoothTransformation
+                    ))
+
                 self.update_score_label()
                 self.reset_game()
-
-        self.input.clear()
 
     def update_score_label(self):
         """Update the score label to display the scores for both players."""
@@ -280,6 +299,7 @@ class GeniusFeatureGame(QWidget):
 
     def reset_game(self):
         self.current_artist = None
+        named_artist.clear()
 
         # Alternate the starting player
         self.starting_player = 1 if self.starting_player == 2 else 2
@@ -308,7 +328,7 @@ class GeniusFeatureGame(QWidget):
         window_width = self.width()
         window_height = self.height()
 
-        # Set the image size to be proportional to the window size (e.g., 40% of width and height)
+        # Set the image size to be proportional to the window size 
         image_width = int(window_width * 0.4)
         image_height = int(window_height * 0.4)
 
@@ -327,10 +347,11 @@ class MainMenu(QWidget):
     def setup_ui(self):
         layout = QVBoxLayout()
 
-        # Title Label
-        title_label = QLabel("RAP BATTLE")
-        title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("font-size: 24px; font-weight: bold;")
+        # Logo
+        logo_label = QLabel(self)
+        logo_pixmap = QPixmap(RAPBATTLE_LOGO) 
+        logo_label.setPixmap(logo_pixmap.scaled(400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        logo_label.setAlignment(Qt.AlignCenter)
 
         # Start Game Button
         start_button = QPushButton("Start Game")
@@ -348,7 +369,7 @@ class MainMenu(QWidget):
         quit_button.clicked.connect(self.quit_game)
 
         # Add widgets to the layout
-        layout.addWidget(title_label)
+        layout.addWidget(logo_label, alignment=Qt.AlignCenter)  # Add the logo above the buttons
         layout.addStretch(1)
         layout.addWidget(start_button, alignment=Qt.AlignCenter)
         layout.addWidget(instructions_button, alignment=Qt.AlignCenter)
@@ -448,8 +469,10 @@ class GeniusApiTokenDialog(QDialog):
 
         # Input for Genius API token
         self.token_input = QLineEdit()
+        instruction_label = QLabel('Genius API Token: (<a href="https://genius.com/api-clients">Click here to get yours</a>)')
+        instruction_label.setOpenExternalLinks(True)
         self.token_input.setPlaceholderText("Enter your Genius API token")
-        layout.addWidget(QLabel("Genius API Token:"))
+        layout.addWidget(instruction_label)
         layout.addWidget(self.token_input)
 
         # OK Button
@@ -515,6 +538,7 @@ class MainWindow(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon("Assets/rapbattle_icon.icns"))  
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
