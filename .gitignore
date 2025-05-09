@@ -14,6 +14,9 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+myvenv/
+WindowsPackage/
+MacOSPackage/
 
 # IDE-specific ignores
 .vscode/
