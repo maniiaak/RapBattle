@@ -12,6 +12,7 @@ __pycache__/
 *.zip
 *.tar.gz
 *.egg-info/
+*.spec
 dist/
 build/
 myvenv/
