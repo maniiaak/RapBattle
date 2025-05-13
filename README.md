@@ -64,7 +64,7 @@ pip install -r requirements.txt
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/rap-battle.git
+   git clone https://github.com/maniiaak/RapBattle.git
    cd rap-battle
    ```
 
@@ -79,7 +79,7 @@ pip install -r requirements.txt
 
 4. Run the game:
    ```bash
-   python indgame.py
+   python main.py
    ```
 
 ---
