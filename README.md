@@ -15,7 +15,7 @@ RAP BATTLE is a fun and interactive two-player game where players test their kno
    - The game fetches collaboration data from the Genius API to validate the answers.
 
 3. **Make a Mistake**:
-   - If a player names an artist that has not collaborated with the current artist, the round ends.
+   - If a player names an artist that has not collaborated with the current artist or that has already been named, the round ends.
    - The other player earns 1 point, and a new round begins.
 
 4. **Win the Game**:
