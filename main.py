@@ -538,7 +538,7 @@ class MainWindow(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon("Assets/rapbattle_icon.icns"))  
+    #app.setWindowIcon(QIcon("Assets/rapbattle_icon.icns"))  
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
