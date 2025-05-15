@@ -98,7 +98,9 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## 🔽 Download
 
-**[Click here to download Rap Battle for Windows](https://github.com/maniiaak/RapBattle/releases/download/windows/RapBattle.zip)**
+**[Click here to download Rap Battle for Windows](https://github.com/maniiaak/RapBattle/releases/download/v1.0/RapBattle.zip)**
+
+**[Click here to download Rap Battle for MacOS](https://github.com/maniiaak/RapBattle/releases/download/v1.0/RapBattle_MacOS.zip)**
 
 ---
 Enjoy the game and test your music knowledge! 
