@@ -43,7 +43,7 @@ RAP BATTLE is a fun and interactive two-player game where players test their kno
 
 ---
 
-## Requirements 🛠️
+## Requirements 
 
 - Python 3.10 or higher
 - Genius API token (required for fetching artist data)
@@ -60,7 +60,7 @@ pip install -r requirements.txt
 
 ---
 
-## Setup 🚀
+## Setup 
 
 1. Clone the repository:
    ```bash
@@ -93,16 +93,3 @@ Contributions are welcome! Feel free to open issues or submit pull requests to i
 ## License 
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
-
----
-
-## 🔽 Download
-
-Unfortunately, you need to download the dependencies before running the downloaded files (currently fixing this):
-
-**[Click here to download Rap Battle for Windows](https://github.com/maniiaak/RapBattle/releases/download/v1.0/RapBattle.zip)**
-
-**[Click here to download Rap Battle for MacOS](https://github.com/maniiaak/RapBattle/releases/download/v1.0/RapBattle_MacOS.zip)**
-
----
-Enjoy the game and test your music knowledge! 
