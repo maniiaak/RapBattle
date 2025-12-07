@@ -20,7 +20,7 @@ load_dotenv(dotenv_path=env_path)
 # Initialize the Genius API token
 GENIUS_API_TOKEN = os.getenv("GENIUS_API_TOKEN")
 
-RAPBATTLE_LOGO = r"Assets\rapbattle_logo.jpg"
+RAPBATTLE_LOGO = r"Assets/rapbattle_logo.jpg"
 named_artist = []
 
 class GeniusFeatureGame(QWidget):
@@ -229,14 +229,11 @@ class GeniusFeatureGame(QWidget):
             input_artist_collaborations = self.fetch_collaborations(input_artist_id)
 
             if artist_name.lower() in current_artist_collaborations or self.current_artist.lower() in input_artist_collaborations:
-                print(named_artist)
                 if not artist_name.lower() in named_artist:
                     # Show the "Correct" message and wait for the user to press "OK"
                     QMessageBox.information(self, "Correct", f"Correct! {artist_name} is a valid artist.")
+                    self.setWindowTitle("Genius Feature Game")
                     named_artist.append(artist_name)
-
-                    # Update the artist's image after the user presses "OK"
-                    print(len(named_artist))
 
                     self.update_artist_image(artist_data["image_url"])
 
